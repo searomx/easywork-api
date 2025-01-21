@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USERP
+  USERR
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  Author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Skills {
+  id        Int    @id @default(autoincrement())
+  name      String
+  cnae      String?
+  userId    Int
+  user      User   @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        Int            @id @default(autoincrement())
+  email     String         @unique
+  username  String
+  password  String? // Password is nullable for OAuth users
+  role      Role?           @default(ADMIN)
+  googleId  String?        @unique
+  feedback  Feedback[]
+  followers UserFollower[] @relation("followers")
+  following UserFollower[] @relation("following")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  skills Skills[]
+  avaliation_range AvaliationRange[]
+}
+
+model UserFollower {
+  id          Int      @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  follower    User     @relation("followers", fields: [followerId], references: [id])
+  following   User     @relation("following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+  @@unique([followerId, followingId])
+}
+model AvaliationRange {
+  id        Int    @id @default(autoincrement())
+  range     Int
+  userId    Int
+  user      User   @relation(fields: [userId], references: [id])
+}
+
+
