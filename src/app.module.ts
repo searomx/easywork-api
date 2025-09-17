@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DbModule } from './db/db.module';
-import { UsuarioModule } from './usuario/usuario.module';
+import { UsuarioModule } from './user/user.module';
 import { SkillModule } from './skill/skill.module';
 
 @Module({

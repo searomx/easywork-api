@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Body,
+  Put,
   Patch,
   Param,
   Delete,
@@ -11,32 +12,40 @@ import { SkillService } from './skill.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 
-@Controller('skill')
+@Controller('skills')
 export class SkillController {
   constructor(private readonly skillService: SkillService) {}
 
   @Post()
-  create(@Body() createSkillDto: CreateSkillDto) {
-    return this.skillService.create(createSkillDto);
+  criarSkill(@Body() createSkillDto: CreateSkillDto) {
+    return this.skillService.criarSkill(createSkillDto);
   }
 
   @Get()
-  findAll() {
-    return this.skillService.findAll();
+  buscarTodosSkills() {
+    return this.skillService.buscarTodosSkills();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.skillService.findOne(+id);
+  buscarUmSkill(@Param('id') id: string) {
+    return this.skillService.buscarUmSkill(+id);
+  }
+
+  @Put()
+  alterarTodosSkills() {
+    return this.skillService.alterarTodosSkills();
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSkillDto: UpdateSkillDto) {
-    return this.skillService.update(+id, updateSkillDto);
+  alterarUmSkill(
+    @Param('id') id: string,
+    @Body() updateSkillDto: UpdateSkillDto,
+  ) {
+    return this.skillService.alterarUmSkill(+id, updateSkillDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.skillService.remove(+id);
+  excluirUmSkill(@Param('id') id: string) {
+    return this.skillService.excluirUmSkill(+id);
   }
 }

@@ -8,30 +8,46 @@ export class SkillService {
   constructor(private readonly prismaService: PrismaService) {
     this.prismaService = prismaService;
   }
-  create(createSkillDto: CreateSkillDto) {
-    return this.prismaService.skill.create({
+  criarSkill(createSkillDto: CreateSkillDto) {
+    return this.prismaService.skills.create({
       data: createSkillDto,
+      include: {
+        user: true,
+      },
     });
   }
-  findAll() {
-    return this.prismaService.skill.findMany();
+  buscarTodosSkills() {
+    return this.prismaService.skills.findMany();
   }
 
-  findOne(id: number) {
-    return this.prismaService.skill.findOne({
+  buscarUmSkill(id: number) {
+    return this.prismaService.skills.findUnique({
       where: { id },
     });
   }
 
-  update(id: number, updateSkillDto: UpdateSkillDto) {
-    return this.prismaService.skill.update({
+  alterarTodosSkills(id: number, updateSkillDto: UpdateSkillDto) {
+    return this.prismaService.skills.updateMany({
+      data: updateSkillDto,
+      where: { id },
+      include: {
+        user: true,
+      },
+    });
+  }
+
+  alterarUmSkill(id: number, updateSkillDto: UpdateSkillDto) {
+    return this.prismaService.skills.update({
       where: { id },
       data: updateSkillDto,
+      include: {
+        user: true,
+      },
     });
   }
 
-  remove(id: number) {
-    return this.prismaService.skill.remove({
+  excluirUmSkill(id: number) {
+    return this.prismaService.skills.delete({
       where: { id },
     });
   }

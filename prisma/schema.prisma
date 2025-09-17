@@ -11,7 +11,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  // shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 enum Role {
@@ -24,8 +24,10 @@ model Feedback {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
-  Author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+  userIdService  Int
+  userService    UserService     @relation(fields: [userIdService], references: [id])
+  userIdCustomer Int
+  userCustomer   UserCustomer    @relation(fields: [userIdCustomer], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -35,41 +37,124 @@ model Skills {
   name      String
   cnae      String?
   userId    Int
-  user      User   @relation(fields: [userId], references: [id])
+  user      UserService   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model User {
+model UserService {
   id        Int            @id @default(autoincrement())
   email     String         @unique
   username  String
-  password  String? // Password is nullable for OAuth users
-  role      Role?           @default(ADMIN)
+  password  String? // Password is nullable for OAuth users 
   googleId  String?        @unique
   feedback  Feedback[]
-  followers UserFollower[] @relation("followers")
-  following UserFollower[] @relation("following")
+  trainingCourses TrainingCourses[]
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   skills Skills[]
   avaliation_range AvaliationRange[]
+  payments Payments[]
+  ratings Ratings[]
+  location Json?
+  serviceExecutions ServiceExecution[]  
+
+  UserServiceData UserServiceData[]
+}
+model UserCustomer {
+  id        Int            @id @default(autoincrement())
+  email     String         @unique
+  username  String
+  password  String? 
+  googleId  String?        @unique
+  feedback  Feedback[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  avaliation_range AvaliationRange[]
+  payments Payments[]
+  ratings Ratings[]
+
+  ServiceExecution ServiceExecution[]
+}
+model UserServiceData {
+  id        Int      @id @default(autoincrement())
+  cnpj      String?        @unique
+  cpf       String?        @unique
+  phone     String?
+  address   String?
+  city      String?
+  state     String?
+  zip       String?
+  district   String?
+  country   String?
+  website   String?
+  companyName String?
+  email     String?
+  description String?
+  userId    Int      @unique
+  userService      UserService    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model TrainingCourses{
+  id        Int      @id @default(autoincrement())
+  title     String
+  institution String
+  startDate DateTime
+  endDate   DateTime?
+  certificateUrl String?
+  userId    Int
+  user      UserService    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model UserFollower {
-  id          Int      @id @default(autoincrement())
-  followerId  Int
-  followingId Int
-  follower    User     @relation("followers", fields: [followerId], references: [id])
-  following   User     @relation("following", fields: [followingId], references: [id])
-  createdAt   DateTime @default(now())
-  @@unique([followerId, followingId])
-}
+
 model AvaliationRange {
   id        Int    @id @default(autoincrement())
   range     Int
+  userIdService    Int
+  userService      UserService   @relation(fields: [userIdService], references: [id])
+  userIdCustomer   Int
+  userCustomer    UserCustomer  @relation(fields: [userIdCustomer], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Ratings {
+  id        Int      @id @default(autoincrement())
+  score     Int
+  comment   String?
+  userIdService    Int
+  userService      UserService     @relation(fields: [userIdService], references: [id])
+  userIdCustomer   Int
+  userCustomer     UserCustomer    @relation(fields: [userIdCustomer], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Payments {
+  id        Int      @id @default(autoincrement())
   userId    Int
-  user      User   @relation(fields: [userId], references: [id])
+  amount    Float
+  status    String // e.g., PENDING, COMPLETED, FAILED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userService   UserService     @relation(fields: [userId], references: [id], map: "Payments_userIdService_fkey")
+  userCustomer  UserCustomer    @relation(fields: [userId], references: [id], map: "Payments_userIdCustomer_fkey")
+
+}
+model ServiceExecution {
+  id            Int      @id @default(autoincrement())
+  serviceName   String
+  description   String?
+  userIdService Int
+  userIdCustomer Int
+  userService   UserService     @relation(fields: [userIdService], references: [id])
+  userCustomer  UserCustomer    @relation(fields: [userIdCustomer], references: [id])
+  status        String // e.g., PENDING, IN_PROGRESS, COMPLETED, CANCELED
+  price         Float
+  executionDate DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 
